@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { Button, Stack, Table, Title, Text, Modal, Group } from '@mantine/core';
+import { Button, Stack, Table, Title, Text, Modal } from '@mantine/core';
 import { PersonType } from 'db/person.schema';
 import useFetch from 'hooks/useFetch';
 import React, { useState } from 'react';
@@ -34,7 +34,7 @@ export default function Admin() {
                             <td> {new Date(record.createdAt).toLocaleDateString()} {new Date(record.createdAt).toLocaleTimeString()} </td>
                             <td> {record.fullName} </td>
                             <td>
-                                <Text color={record.status === 'missing' ? 'orange' : 'green'}>
+                                <Text transform='capitalize' color={record.status === 'missing' ? 'orange' : 'green'}>
                                     {record.status}
                                 </Text>
                             </td>
@@ -47,9 +47,13 @@ export default function Admin() {
         <Modal
             size={'lg'}
             opened={!!selectedPerson}
-            title={<Title order={4} color={selectedPerson?.status === 'missing' ? 'orange' : 'green'}>
-                {selectedPerson?.status}
-            </Title>}
+            title={
+                <Title
+                    transform='capitalize'
+                    order={4}
+                    color={selectedPerson?.status === 'missing' ? 'orange' : 'green'}>
+                    {selectedPerson?.status}
+                </Title>}
             onClose={() => setSelectedPerson(undefined)}>
 
             <div className='person-modal'>
@@ -58,14 +62,15 @@ export default function Admin() {
                 </div>
                 <div className='details'>
                     <Title> {selectedPerson?.fullName} </Title>
-                    <Title order={5}> {selectedPerson?.age} years old • {selectedPerson?.gender} </Title>
+                    <Title mb='md' order={5}> {selectedPerson?.age} years old • {selectedPerson?.gender} </Title>
+
                     <Text> {selectedPerson?.skin.color} skin • accuracy: {selectedPerson?.skin.accuracy}</Text>
                     <Text> {selectedPerson?.nose.isPointed ? 'pointed' : 'flat'} nose • accuracy: {selectedPerson?.nose.accuracy}</Text>
                     <Text> {selectedPerson?.eyes.color} eyes • accuracy: {selectedPerson?.eyes.accuracy}</Text>
 
                     <div className='actions'>
                         <Button variant='outline'> Remove </Button>
-                        <Button color={'green'}> Mark as found </Button>
+                        {selectedPerson?.status === 'missing' && <Button color='green' > Mark as found </Button>}
                     </div>
                 </div>
             </div>
