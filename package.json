@@ -20,11 +20,11 @@
     "@mantine/next": "^5.5.4",
     "@mantine/notifications": "^5.5.4",
     "@mantine/nprogress": "^5.5.4",
+    "@tensorflow/tfjs": "^4.0.0",
     "bcryptjs": "^2.4.3",
     "dayjs": "^1.11.5",
     "mongoose": "^6.6.5",
     "next": "12.3.1",
-    "next-auth": "^4.13.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
