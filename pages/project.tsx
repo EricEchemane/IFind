@@ -1,11 +1,12 @@
 import Head from 'next/head';
-import React, { FormEvent, useEffect, useRef, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import * as tf from "@tensorflow/tfjs";
-import { Button, Center, Group, NumberInput, Select, Stack, TextInput, Title, Text } from '@mantine/core';
+import { Button, Center, NumberInput, Select, Stack, TextInput, Title, Text } from '@mantine/core';
 import Navbar from 'components/Navbar';
 import { showNotification } from '@mantine/notifications';
 import { ImageDropzone } from 'components/ImageDropzone';
 import { eyesLabels, noseLabels, skinLabels } from 'app/labels';
+import Http from 'http/adapter';
 
 interface Prediction {
     eyes: { color: string, accuracy: string; };
@@ -24,6 +25,8 @@ export default function Project() {
 
     const [prediction, setPrediction] = useState<Prediction | undefined>();
 
+    const [loading, setLoading] = useState(false);
+
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (gender === '') {
@@ -33,6 +36,32 @@ export default function Project() {
             });
             return;
         }
+
+        const payload = {
+            fullName,
+            gender,
+            age,
+            photo: imgSrc,
+            ...prediction,
+        };
+
+        Http.post('/api/add-person', payload, {
+            loadingToggler: setLoading,
+            onFail: alert,
+            onSuccess: () => {
+                showNotification({
+                    message: 'Missing person added successfully',
+                    color: 'green',
+                });
+                // reset all
+                setFullName('');
+                setGender('');
+                setage(undefined);
+                setImgSrc(undefined);
+                setFile(undefined);
+                setPrediction(undefined);
+            }
+        });
     };
 
     async function handleDrop(files: File[]) {
@@ -40,7 +69,12 @@ export default function Project() {
         if (!file) return;
         setClassifying(true);
         setFile(file);
-        setImgSrc(URL.createObjectURL(file));
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            setImgSrc(reader.result as string);
+        };
 
         const img = document.createElement('img');
         img.width = 400;
@@ -152,7 +186,9 @@ export default function Project() {
                                         <Text> {prediction?.eyes.color} | Accuracy: {prediction?.eyes.accuracy}</Text>
                                     </div>
 
-                                    <Button mt='lg' size='lg' type='submit'> Save </Button>
+                                    <Button loading={loading} mt='lg' size='lg' type='submit'>
+                                        {loading ? 'saving' : 'Save'}
+                                    </Button>
                                 </>}
                             </Stack>
                         </Stack>

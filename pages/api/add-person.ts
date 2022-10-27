@@ -10,11 +10,12 @@ async function handler(req: NextApiRequest) {
         fullName,
         age,
         gender,
+        photo,
         eyes, nose, skin
     }: PersonType = req.body;
 
     // validate the body
-    if (!fullName || !age || !gender || !eyes || !nose || !skin) {
+    if (!fullName || !age || !gender || !eyes || !nose || !skin || !photo) {
         throw new RequestError(400, "Missing required fields");
     }
 

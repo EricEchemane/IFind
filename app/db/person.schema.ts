@@ -19,6 +19,10 @@ const personSchema = new Schema({
         enum: ['male', 'female', 'prefer not to say'],
         required: true,
     },
+    photo: {
+        type: String,
+        required: true,
+    },
     eyes: {
         required: true,
         type: {
