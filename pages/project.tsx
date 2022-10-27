@@ -1,15 +1,16 @@
 import Head from 'next/head';
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import * as tf from "@tensorflow/tfjs";
-import { Button, Center, Group, NumberInput, Select, Stack, TextInput, Title } from '@mantine/core';
+import { Button, Center, Group, NumberInput, Select, Stack, TextInput, Title, Text } from '@mantine/core';
 import Navbar from 'components/Navbar';
 import { showNotification } from '@mantine/notifications';
 import { ImageDropzone } from 'components/ImageDropzone';
+import { eyesLabels, noseLabels, skinLabels } from 'app/labels';
 
 interface Prediction {
     eyes: { color: string, accuracy: string; };
     nose: { isPointed: boolean, accuracy: string; };
-    skin: { color: boolean, accuracy: string; };
+    skin: { color: string, accuracy: string; };
 }
 
 export default function Project() {
@@ -50,28 +51,44 @@ export default function Project() {
     }
 
     const predict = async (img: HTMLImageElement) => {
+
         setClassifying(true);
+
         const eyesModel = await tf.loadLayersModel('/models/eyes/model.json');
         const noseModel = await tf.loadLayersModel('/models/nose/model.json');
         const skinModel = await tf.loadLayersModel('/models/skin/model.json');
-        // const imageTensor = tf.browser.fromPixels(img)
-        //     .expandDims(0)
-        //     .expandDims(-1)
-        //     .div(255.0)
-        //     .reshape([-1, 256, 256, 3]);
 
-        // const pred: any = model.predict(imageTensor);
-        // const results = await pred.data();
-        // const confidence = Math.max(...results);
-        // const index = results.findIndex((r: any) => r === confidence);
-        // const type = labels[index];
+        const tensor = tf.browser.fromPixels(img)
+            .expandDims(0)
+            .expandDims(-1)
+            .div(255.0)
+            .reshape([-1, 400, 540, 3]);
 
-        // console.log(type, confidence);
+        // classify eyes
+        const eyesPred: any = eyesModel.predict(tensor);
+        const eyesResults = await eyesPred.data();
+        const eyesConfidence = Math.max(...eyesResults);
+        const eyeIndex = eyesResults.findIndex((r: any) => r === eyesConfidence);
+        const eyeColor = eyesLabels[eyeIndex];
+        const eyes = { color: eyeColor, accuracy: `${(eyesConfidence * 100).toFixed(2)}%` };
+        // classify nose
+        const nosePred: any = noseModel.predict(tensor);
+        const noseResults = await nosePred.data();
+        const noseConfidence = Math.max(...noseResults);
+        const noseIndex = noseResults.findIndex((r: any) => r === noseConfidence);
+        const noseLabel = noseLabels[noseIndex];
+        const nose = { isPointed: noseLabel === 'pointed', accuracy: `${(noseConfidence * 100).toFixed(2)}%` };
+        // classify skin
+        const skinPred: any = skinModel.predict(tensor);
+        const skinResults = await skinPred.data();
+        const skinConfidence = Math.max(...skinResults);
+        const skinIndex = skinResults.findIndex((r: any) => r === skinConfidence);
+        const skinColor = skinLabels[skinIndex];
+        const skin = { color: skinColor, accuracy: `${(skinConfidence * 100).toFixed(2)}%` };
 
-        // if (type === "not" || type === "alike" || confidence < .75) {
-        //     setClassifying(false);
-        //     return;
-        // }
+        const _prediction = { eyes, nose, skin };
+        setPrediction(_prediction);
+
         setClassifying(false);
     };
 
@@ -121,9 +138,22 @@ export default function Project() {
                                         { value: 'prefer not to say', label: 'prefer not to say' },
                                     ]}
                                 />
-                                {/* <Button type='submit'>
-                                    Submit
-                                </Button> */}
+                                {prediction && <>
+                                    <div>
+                                        <Title order={5}> Skin </Title>
+                                        <Text> {prediction?.skin.color} | Accuracy: {prediction?.skin.accuracy}</Text>
+                                    </div>
+                                    <div>
+                                        <Title order={5}> Nose </Title>
+                                        <Text> {prediction?.nose.isPointed ? 'pointed' : 'flat'} | Accuracy: {prediction?.nose.accuracy}</Text>
+                                    </div>
+                                    <div>
+                                        <Title order={5}> Eyes </Title>
+                                        <Text> {prediction?.eyes.color} | Accuracy: {prediction?.eyes.accuracy}</Text>
+                                    </div>
+
+                                    <Button mt='lg' size='lg' type='submit'> Save </Button>
+                                </>}
                             </Stack>
                         </Stack>
 
@@ -132,9 +162,6 @@ export default function Project() {
                                 onDrop={handleDrop}
                                 imgsrc={imgSrc}
                                 loading={classifying} />
-                            <Button>
-                                Classify
-                            </Button>
                         </Stack>
                     </div>
                 </form>
