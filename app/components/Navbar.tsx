@@ -3,7 +3,7 @@ import { Group, Paper, Title } from '@mantine/core';
 import Link from 'next/link';
 
 export default function Navbar() {
-    return <Paper shadow={'lg'} p='1rem'>
+    return <Paper shadow={'lg'} p='1rem' style={{ position: 'sticky', top: 0 }}>
         <Group position='apart'>
             <Title> iFind </Title>
             <Group spacing={24}>
