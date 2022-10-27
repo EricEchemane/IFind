@@ -20,9 +20,6 @@ export default function AboutUs() {
                 <ContactIcon
                     iconClassName='bx bxl-twitter'
                     url='https://twitter.com/zazifind' />
-                <pre>
-                    zazifind@gmail.com
-                </pre>
             </Group>
         </Stack>
     </>;
