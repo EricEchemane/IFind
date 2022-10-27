@@ -14,7 +14,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         theme={{
           /** Put your mantine theme override here */
           colorScheme: 'dark',
-          fontFamily: "Inter, sans-serif"
+          fontFamily: "Inter, sans-serif",
+          primaryColor: 'orange',
         }}>
         <ModalsProvider>
           <NotificationsProvider position='top-center'>
