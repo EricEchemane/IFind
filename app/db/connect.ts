@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import personSchema from './person.schema';
 
 let database: typeof mongoose | null = null;
 
@@ -11,7 +12,7 @@ export default async function connectToDatabase(): Promise<typeof mongoose | nul
             throw new Error('MONGODB_URI not set');
         }
 
-        // if (!mongoose.models.User) mongoose.model('User', userSchema);
+        if (!mongoose.models.Person) mongoose.model('Person', personSchema);
         const connection = await mongoose.connect(
             process.env.MONGODB_URI,
             { dbName: 'ifind' });

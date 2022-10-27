@@ -5,7 +5,7 @@ import * as tf from "@tensorflow/tfjs";
 export default function Project() {
     return <>
         <Head>
-            <title> Classification </title>
+            <title> iFind - Classification </title>
         </Head>
 
         <div>
