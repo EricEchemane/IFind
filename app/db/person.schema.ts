@@ -33,10 +33,9 @@ const personSchema = new Schema({
     nose: {
         required: true,
         type: {
-            type: {
-                type: String,
+            isPointed: {
+                type: Boolean,
                 required: true,
-                enum: ['pointed', 'flat']
             },
             accuracy: { type: String, required: true },
         }
