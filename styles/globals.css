@@ -33,8 +33,56 @@ a {
   gap: 2rem;
 }
 
+.person-photo {
+  width: 300px;
+  height: 400px;
+  overflow: hidden;
+  border-radius: .2rem;
+}
+
+.person-photo img {
+  object-fit: cover;
+  width: 100%;
+  object-position: center;
+}
+
+.person-modal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.person-modal .details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.person-modal .actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: stretch;
+  margin-top: auto;
+}
+
+.actions button {
+  width: 50%;
+}
+
 @media screen and (max-width: 650px) {
   .classification {
     grid-template-columns: 1fr;
+  }
+
+  .person-photo {
+    width: 100%;
+  }
+
+  .person-modal {
+    grid-template-columns: 1fr;
+  }
+
+  .person-modal .actions {
+    padding-top: 1rem;
   }
 }

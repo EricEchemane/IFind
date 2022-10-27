@@ -6,6 +6,10 @@ const personSchema = new Schema({
         enum: ["missing", "found"],
         default: 'missing',
     },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
     fullName: {
         type: String,
         required: true,

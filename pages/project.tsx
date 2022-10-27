@@ -1,12 +1,14 @@
 import Head from 'next/head';
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import * as tf from "@tensorflow/tfjs";
-import { Button, Center, NumberInput, Select, Stack, TextInput, Title, Text } from '@mantine/core';
+import { Button, Center, NumberInput, Select, Stack, TextInput, Title, Text, Group, Modal } from '@mantine/core';
 import Navbar from 'components/Navbar';
 import { showNotification } from '@mantine/notifications';
 import { ImageDropzone } from 'components/ImageDropzone';
 import { eyesLabels, noseLabels, skinLabels } from 'app/labels';
 import Http from 'http/adapter';
+import Login from 'components/Login';
+import Admin from 'components/admin';
 
 interface Prediction {
     eyes: { color: string, accuracy: string; };
@@ -19,13 +21,23 @@ export default function Project() {
     const [gender, setGender] = useState<'' | 'male' | 'female' | 'prefer not to say'>('');
     const [age, setage] = useState<number | undefined>();
 
+    const [loading, setLoading] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [adminModal, setAdminModal] = useState(false);
+
     const [imgSrc, setImgSrc] = useState<string>();
     const [file, setFile] = useState<File>();
     const [classifying, setClassifying] = useState(false);
 
     const [prediction, setPrediction] = useState<Prediction | undefined>();
 
-    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const loggedIn = sessionStorage.getItem('iFind');
+        if (loggedIn === 'loggedIn') {
+            setIsLoggedIn(true);
+        }
+    }, []);
 
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -126,6 +138,8 @@ export default function Project() {
         setClassifying(false);
     };
 
+    if (!isLoggedIn) return <Login onLoggedIn={() => setIsLoggedIn(true)} />;
+
     return <>
         <Head>
             <title> iFind - Classification </title>
@@ -136,7 +150,10 @@ export default function Project() {
         <Center mt={24}>
             <Stack sx={{ width: 'min(1000px, 90vw)' }} pb='4rem'>
 
-                <Title order={2} mb={16}> Classification </Title>
+                <Group mb={16} mt={24} position='apart'>
+                    <Title order={2}> Classification </Title>
+                    <Button onClick={() => setAdminModal(true)} variant='gradient'> view records </Button>
+                </Group>
 
                 <form onSubmit={onSubmit}>
                     <div className='classification'>
@@ -203,5 +220,13 @@ export default function Project() {
                 </form>
             </Stack>
         </Center>
+
+        <Modal
+            opened={adminModal}
+            onClose={() => setAdminModal(false)}
+            title={<Title order={2}> Records </Title>}
+            fullScreen>
+            <Admin />
+        </Modal>
     </>;
 }
