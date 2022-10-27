@@ -4,6 +4,7 @@ import Http from 'http/adapter';
 import Head from 'next/head';
 import React, { FormEvent, useState } from 'react';
 import { showNotification } from '@mantine/notifications';
+import AboutUs from 'components/AboutUs';
 
 export default function HomePage() {
 
@@ -56,6 +57,8 @@ export default function HomePage() {
         </Stack>
       </Center>
     </Stack>
+
+    <AboutUs />
 
     <Modal
       closeOnClickOutside={false}
