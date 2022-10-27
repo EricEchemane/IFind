@@ -60,7 +60,7 @@ a {
 
 .person-modal .actions {
   display: flex;
-  gap: 1rem;
+  gap: .75rem;
   justify-content: stretch;
   margin-top: auto;
 }
