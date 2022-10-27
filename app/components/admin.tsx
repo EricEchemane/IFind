@@ -30,6 +30,21 @@ export default function Admin() {
         setLoading(false);
     };
 
+    const remove = async () => {
+        const confirmed = window.confirm("Are you sure you want to delete this record?");
+        if (!confirmed) return;
+        setLoading(true);
+        Http.post("/api/remove", { _id: (selectedPerson as any)._id, }, {
+            loadingToggler: setLoading,
+            onFail: alert,
+            onSuccess() {
+                setSelectedPerson(undefined);
+                get();
+            }
+        });
+        setLoading(false);
+    };
+
     if (!records && !error) return <Title order={3}> Loading... </Title>;
     if (error) return <Title order={3}> Error getting records </Title>;
 
@@ -87,7 +102,7 @@ export default function Admin() {
                     <Text> {selectedPerson?.eyes.color} eyes • accuracy: {selectedPerson?.eyes.accuracy}</Text>
 
                     <div className='actions'>
-                        <Button variant='outline'> Remove </Button>
+                        <Button variant='outline' loading={loading} onClick={remove}> Remove </Button>
                         {selectedPerson?.status === 'missing' &&
                             <Button
                                 onClick={markAsFound}
