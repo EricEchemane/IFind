@@ -18,7 +18,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           primaryColor: 'orange',
         }}>
         <ModalsProvider>
-          <NotificationsProvider position='top-center'>
+          <NotificationsProvider position='bottom-right'>
             <NavigationProgress />
             <Component {...pageProps} />
           </NotificationsProvider>

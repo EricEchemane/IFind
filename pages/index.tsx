@@ -1,7 +1,9 @@
 import { Button, Center, Group, Modal, Stack, Textarea, TextInput, Title } from '@mantine/core';
 import Navbar from 'components/Navbar';
+import Http from 'http/adapter';
 import Head from 'next/head';
 import React, { FormEvent, useState } from 'react';
+import { showNotification } from '@mantine/notifications';
 
 export default function HomePage() {
 
@@ -9,8 +11,24 @@ export default function HomePage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
+    Http.post('/api/send-email', { email, message }, {
+      loadingToggler: setLoading,
+      onFail: alert,
+      onSuccess: () => {
+        setGetUpdatesModalIsOpen(false);
+        showNotification({
+          title: 'Sent successfully',
+          message: 'Thank you for subscribing to our updates. We will send you an email when we have something new to share.',
+          color: 'green',
+        });
+        setEmail('');
+        setMessage('');
+      }
+    });
   };
 
   return <>
@@ -20,9 +38,12 @@ export default function HomePage() {
 
     <Navbar />
 
-    <Stack style={{ width: 'min(1000px, 90vw', margin: '7rem auto' }}>
+    <Stack style={{ width: 'min(1000px, 90vw', margin: 'auto' }}>
       <Center>
-        <Stack spacing={0} align='center'>
+        <Stack
+          spacing={0}
+          align='center'
+          sx={{ textAlign: 'center', paddingTop: '6rem' }}>
           <Title> FACIAL POINTS PREDICTION </Title>
           <Title color={'orange'}> OF MISSING PERSON </Title>
           <Title> THROUGH IMAGE PROCESSING </Title>
@@ -37,6 +58,7 @@ export default function HomePage() {
     </Stack>
 
     <Modal
+      closeOnClickOutside={false}
       opened={getUpdatesModalIsOpen}
       onClose={() => setGetUpdatesModalIsOpen(false)}
       title="Get Udpates"
@@ -60,7 +82,7 @@ export default function HomePage() {
           value={message}
           onChange={(e) => setMessage(e.currentTarget.value)}
         />
-        <Button type='submit' sx={{ float: 'right' }}> Submit </Button>
+        <Button loading={loading} type='submit' sx={{ float: 'right' }}> Submit </Button>
       </form>
     </Modal>
   </>;
