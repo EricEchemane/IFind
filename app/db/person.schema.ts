@@ -4,7 +4,7 @@ const personSchema = new Schema({
     status: {
         type: String,
         enum: ["missing", "found"],
-        required: true,
+        default: 'missing',
     },
     fullName: {
         type: String,
