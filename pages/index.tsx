@@ -5,6 +5,7 @@ import Head from 'next/head';
 import React, { FormEvent, useState } from 'react';
 import { showNotification } from '@mantine/notifications';
 import AboutUs from 'components/AboutUs';
+import ContactUs from 'components/ContactUs';
 
 export default function HomePage() {
 
@@ -59,6 +60,7 @@ export default function HomePage() {
     </Stack>
 
     <AboutUs />
+    <ContactUs />
 
     <Modal
       closeOnClickOutside={false}
