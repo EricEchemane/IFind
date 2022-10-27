@@ -2,15 +2,33 @@
 import { Button, Stack, Table, Title, Text, Modal } from '@mantine/core';
 import { PersonType } from 'db/person.schema';
 import useFetch from 'hooks/useFetch';
+import Http from 'http/adapter';
 import React, { useState } from 'react';
 
 type Person = PersonType & { _id: string; };
 
 export default function Admin() {
-    const { data, error } = useFetch('/api/records');
+    const { data, error, get } = useFetch('/api/records');
     const records: Person[] = data?.data;
 
     const [selectedPerson, setSelectedPerson] = useState<PersonType | undefined>();
+    const [loading, setLoading] = useState(false);
+
+    const markAsFound = async () => {
+        setLoading(true);
+        Http.post("/api/found", { _id: (selectedPerson as any)._id, }, {
+            loadingToggler: setLoading,
+            onFail: alert,
+            onSuccess() {
+                setSelectedPerson(p => {
+                    if (p) p.status = "found";
+                    return p;
+                });
+                get();
+            }
+        });
+        setLoading(false);
+    };
 
     if (!records && !error) return <Title order={3}> Loading... </Title>;
     if (error) return <Title order={3}> Error getting records </Title>;
@@ -70,7 +88,13 @@ export default function Admin() {
 
                     <div className='actions'>
                         <Button variant='outline'> Remove </Button>
-                        {selectedPerson?.status === 'missing' && <Button color='green' > Mark as found </Button>}
+                        {selectedPerson?.status === 'missing' &&
+                            <Button
+                                onClick={markAsFound}
+                                color='green'
+                                loading={loading}>
+                                Mark as found
+                            </Button>}
                     </div>
                 </div>
             </div>
