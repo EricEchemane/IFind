@@ -4,7 +4,7 @@ import { Group, Paper, Title } from '@mantine/core';
 import Link from 'next/link';
 
 export default function Navbar() {
-    return <Paper shadow={'lg'} p='1rem' style={{ position: 'sticky', top: 0 }}>
+    return <Paper shadow={'lg'} p='1rem' style={{ position: 'sticky', top: 0, zIndex: 2 }}>
         <Group position='apart'>
             <Group spacing={8}>
                 <img src="/logo.png" alt="logo" width={30} style={{ filter: 'invert(100%)' }} />

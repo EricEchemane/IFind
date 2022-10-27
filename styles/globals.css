@@ -19,8 +19,22 @@ a {
   html {
     color-scheme: dark;
   }
+
   body {
     color: white;
     background: black;
+  }
+}
+
+
+.classification {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media screen and (max-width: 650px) {
+  .classification {
+    grid-template-columns: 1fr;
   }
 }
