@@ -1,5 +1,4 @@
 import { Stack, Title, Text, Group } from '@mantine/core';
-import { url } from 'inspector';
 import React from 'react';
 
 export default function AboutUs() {
