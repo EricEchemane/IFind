@@ -66,7 +66,7 @@ export default function HomePage() {
       closeOnClickOutside={false}
       opened={getUpdatesModalIsOpen}
       onClose={() => setGetUpdatesModalIsOpen(false)}
-      title="Get Udpates"
+      title="Get Updates"
     >
       <form onSubmit={onSubmit}>
         <TextInput
