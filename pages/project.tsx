@@ -112,10 +112,6 @@ export default function Project() {
 
         setClassifying(true);
 
-        const eyesModel = await tf.loadLayersModel('/models/eyes/model.json');
-        const noseModel = await tf.loadLayersModel('/models/nose/model.json');
-        const skinModel = await tf.loadLayersModel('/models/skin/model.json');
-
         const tensor = tf.browser.fromPixels(img)
             .expandDims(0)
             .expandDims(-1)
@@ -124,6 +120,7 @@ export default function Project() {
 
         // classify skin
         setPredictionStatus("Detecting your skin color...");
+        const skinModel = await tf.loadLayersModel('/models/skin/model.json');
         const skinPred: any = skinModel.predict(tensor);
         const skinResults = await skinPred.data();
         const skinConfidence = Math.max(...skinResults);
@@ -133,6 +130,7 @@ export default function Project() {
         setSkinOutput(skin);
         // classify nose
         setPredictionStatus("Detecting your nose...");
+        const noseModel = await tf.loadLayersModel('/models/nose/model.json');
         const nosePred: any = noseModel.predict(tensor);
         const noseResults = await nosePred.data();
         const noseConfidence = Math.max(...noseResults);
@@ -142,6 +140,7 @@ export default function Project() {
         setNoseOutput(nose);
         // classify eyes
         setPredictionStatus("Detecting your eye color...");
+        const eyesModel = await tf.loadLayersModel('/models/eyes/model.json');
         const eyesPred: any = eyesModel.predict(tensor);
         const eyesResults = await eyesPred.data();
         const eyesConfidence = Math.max(...eyesResults);
@@ -229,8 +228,7 @@ export default function Project() {
                         <Stack sx={{ width: '100%', marginTop: '1.7rem' }}>
                             <ImageDropzone
                                 onDrop={handleDrop}
-                                imgsrc={imgSrc}
-                                loading={classifying} />
+                                imgsrc={imgSrc} />
                         </Stack>
                     </div>
                 </form>
@@ -246,14 +244,14 @@ export default function Project() {
         </Modal>
 
         <Modal
-            zIndex={10}
+            zIndex={100}
             withCloseButton={false}
             // opened={predictionStatus === "none"}
             opened={predictionStatus !== "none" && predictionStatus !== "done"}
             onClose={() => { }}
             title={"Classification"}>
 
-            <Title order={3} italic mb={'md'}> {predictionStatus} </Title>
+            <Title order={5} color="lime" italic mb={'md'}> {predictionStatus} </Title>
 
             {skinOutput && <>
                 <Title order={4}> Skin </Title>
