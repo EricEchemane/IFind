@@ -10,11 +10,16 @@ import Http from 'http/adapter';
 import Login from 'components/Login';
 import Admin from 'components/admin';
 
-interface Prediction {
-    eyes: { color: string, accuracy: string; };
-    nose: { isPointed: boolean, accuracy: string; };
-    skin: { color: string, accuracy: string; };
-}
+type eyesPrediction = { color: string, accuracy: string; };
+type nosePrediction = { isPointed: boolean, accuracy: string; };
+type skinPrediction = { color: string, accuracy: string; };
+
+type PredictionStatus =
+    | "Detecting your skin color..."
+    | "Detecting your nose..."
+    | "Detecting your eye color..."
+    | "done"
+    | "none";
 
 export default function Project() {
     const [fullName, setFullName] = useState('');
@@ -29,8 +34,10 @@ export default function Project() {
     const [file, setFile] = useState<File>();
     const [classifying, setClassifying] = useState(false);
 
-    const [prediction, setPrediction] = useState<Prediction | undefined>();
-
+    const [predictionStatus, setPredictionStatus] = useState<PredictionStatus>("none");
+    const [eyesOutput, setEyesOutput] = useState<eyesPrediction>();
+    const [skinOutput, setSkinOutput] = useState<skinPrediction>();
+    const [noseOutput, setNoseOutput] = useState<nosePrediction>();
 
     useEffect(() => {
         const loggedIn = sessionStorage.getItem('iFind');
@@ -54,7 +61,9 @@ export default function Project() {
             gender,
             age,
             photo: imgSrc,
-            ...prediction,
+            eyes: eyesOutput,
+            nose: noseOutput,
+            skin: skinOutput,
         };
 
         Http.post('/api/add-person', payload, {
@@ -71,7 +80,10 @@ export default function Project() {
                 setage(undefined);
                 setImgSrc(undefined);
                 setFile(undefined);
-                setPrediction(undefined);
+                setEyesOutput(undefined);
+                setNoseOutput(undefined);
+                setSkinOutput(undefined);
+                setPredictionStatus("none");
             }
         });
     };
@@ -110,31 +122,35 @@ export default function Project() {
             .div(255.0)
             .reshape([-1, 400, 540, 3]);
 
-        // classify eyes
-        const eyesPred: any = eyesModel.predict(tensor);
-        const eyesResults = await eyesPred.data();
-        const eyesConfidence = Math.max(...eyesResults);
-        const eyeIndex = eyesResults.findIndex((r: any) => r === eyesConfidence);
-        const eyeColor = eyesLabels[eyeIndex];
-        const eyes = { color: eyeColor, accuracy: `${(eyesConfidence * 100).toFixed(2)}%` };
-        // classify nose
-        const nosePred: any = noseModel.predict(tensor);
-        const noseResults = await nosePred.data();
-        const noseConfidence = Math.max(...noseResults);
-        const noseIndex = noseResults.findIndex((r: any) => r === noseConfidence);
-        const noseLabel = noseLabels[noseIndex];
-        const nose = { isPointed: noseLabel === 'pointed', accuracy: `${(noseConfidence * 100).toFixed(2)}%` };
         // classify skin
+        setPredictionStatus("Detecting your skin color...");
         const skinPred: any = skinModel.predict(tensor);
         const skinResults = await skinPred.data();
         const skinConfidence = Math.max(...skinResults);
         const skinIndex = skinResults.findIndex((r: any) => r === skinConfidence);
         const skinColor = skinLabels[skinIndex];
         const skin = { color: skinColor, accuracy: `${(skinConfidence * 100).toFixed(2)}%` };
+        setSkinOutput(skin);
+        // classify nose
+        setPredictionStatus("Detecting your nose...");
+        const nosePred: any = noseModel.predict(tensor);
+        const noseResults = await nosePred.data();
+        const noseConfidence = Math.max(...noseResults);
+        const noseIndex = noseResults.findIndex((r: any) => r === noseConfidence);
+        const noseLabel = noseLabels[noseIndex];
+        const nose = { isPointed: noseLabel === 'pointed', accuracy: `${(noseConfidence * 100).toFixed(2)}%` };
+        setNoseOutput(nose);
+        // classify eyes
+        setPredictionStatus("Detecting your eye color...");
+        const eyesPred: any = eyesModel.predict(tensor);
+        const eyesResults = await eyesPred.data();
+        const eyesConfidence = Math.max(...eyesResults);
+        const eyeIndex = eyesResults.findIndex((r: any) => r === eyesConfidence);
+        const eyeColor = eyesLabels[eyeIndex];
+        const eyes = { color: eyeColor, accuracy: `${(eyesConfidence * 100).toFixed(2)}%` };
+        setEyesOutput(eyes);
 
-        const _prediction = { eyes, nose, skin };
-        setPrediction(_prediction);
-
+        setPredictionStatus("done");
         setClassifying(false);
     };
 
@@ -189,18 +205,18 @@ export default function Project() {
                                         { value: 'prefer not to say', label: 'prefer not to say' },
                                     ]}
                                 />
-                                {prediction && <>
+                                {predictionStatus === "done" && <>
                                     <div>
                                         <Title order={5}> Skin </Title>
-                                        <Text> {prediction?.skin.color} | Accuracy: {prediction?.skin.accuracy}</Text>
+                                        <Text> {skinOutput?.color} | Accuracy: {skinOutput?.accuracy}</Text>
                                     </div>
                                     <div>
                                         <Title order={5}> Nose </Title>
-                                        <Text> {prediction?.nose.isPointed ? 'pointed' : 'flat'} | Accuracy: {prediction?.nose.accuracy}</Text>
+                                        <Text> {noseOutput?.isPointed ? 'pointed' : 'flat'} | Accuracy: {noseOutput?.accuracy}</Text>
                                     </div>
                                     <div>
                                         <Title order={5}> Eyes </Title>
-                                        <Text> {prediction?.eyes.color} | Accuracy: {prediction?.eyes.accuracy}</Text>
+                                        <Text> {eyesOutput?.color} | Accuracy: {eyesOutput?.accuracy}</Text>
                                     </div>
 
                                     <Button loading={loading} mt='lg' size='lg' type='submit'>
@@ -227,6 +243,33 @@ export default function Project() {
             title={<Title order={2}> Records </Title>}
             fullScreen>
             <Admin />
+        </Modal>
+
+        <Modal
+            zIndex={10}
+            withCloseButton={false}
+            // opened={predictionStatus === "none"}
+            opened={predictionStatus !== "none" && predictionStatus !== "done"}
+            onClose={() => { }}
+            title={"Classification"}>
+
+            <Title order={3} italic mb={'md'}> {predictionStatus} </Title>
+
+            {skinOutput && <>
+                <Title order={4}> Skin </Title>
+                <Text mb={'md'}> Color: {skinOutput.color} | Accuracy: {skinOutput.accuracy}</Text>
+            </>}
+
+            {noseOutput && <>
+                <Title order={4}> Nose </Title>
+                <Text mb={'md'}> Shape: {noseOutput.isPointed ? 'pointed' : 'flat'} | Accuracy: {noseOutput.accuracy}</Text>
+            </>}
+
+            {eyesOutput && <>
+                <Title order={4}> Eyes </Title>
+                <Text mb={'md'}> Color: {eyesOutput.color} | Accuracy: {eyesOutput.accuracy}</Text>
+            </>}
+
         </Modal>
     </>;
 }
